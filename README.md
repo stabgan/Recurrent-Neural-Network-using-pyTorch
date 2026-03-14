@@ -1,15 +1,66 @@
-# Recurrent Neural Network using pyTorch
-I implemented the Recurrent Neural Network into the MNIST dataset using pyTorch in this project
+# 🔁 Recurrent Neural Network (RNN) — MNIST Digit Classification
 
-The human brain is a recurrent neural network (RNN): a network of neurons with feedback connections. It can learn many behaviors / sequence processing tasks / algorithms / programs that are not learnable by traditional machine learning methods. This explains the rapidly growing interest in artificial RNNs for technical applications: general computers which can learn algorithms to map input sequences to output sequences, with or without a teacher. They are computationally more powerful and biologically more plausible than other adaptive approaches such as Hidden Markov Models (no continuous internal states), feedforward networks and Support Vector Machines (no internal states at all). Our recent applications include adaptive robotics and control, handwriting recognition, speech recognition, keyword spotting, music composition, attentive vision, protein analysis, stock market prediction, and many other sequence problems.
-Early RNNs of the 1990s could not learn to look far back into the past. Their problems were first rigorously analyzed on Schmidhuber's RNN long time lag project by his former PhD student Hochreiter (1991). A feedback network called "Long Short-Term Memory" (LSTM, Neural Comp., 1997) overcomes the fundamental problems of traditional RNNs, and efficiently learns to solve many previously unlearnable tasks involving:
+A vanilla RNN built with PyTorch that classifies handwritten digits from the MNIST dataset. The network treats each 28×28 image as a sequence of 28 time steps (rows), each with 28 features (pixels), making it a natural fit for recurrent processing.
 
-1. Recognition of temporally extended patterns in noisy input sequences 
-2. Recognition of the temporal order of widely separated events in noisy input streams 
-3. Extraction of information conveyed by the temporal distance between events 
-4. Stable generation of precisely timed rhythms, smooth and non-smooth periodic trajectories 
-5. Robust storage of high-precision real numbers across extended time intervals.
+## 🏗️ Architecture
 
-Results:
+| Component | Details |
+|-----------|---------|
+| Model | Multi-layer vanilla RNN (`nn.RNN`) |
+| Input | 28 × 28 MNIST images (28 time steps, 28 features) |
+| Hidden layers | 2 stacked RNN layers, 100 hidden units each |
+| Activation | Tanh (default RNN nonlinearity) |
+| Readout | Fully connected layer → 10 classes |
+| Loss | Cross-Entropy Loss |
+| Optimizer | SGD (lr = 0.1) |
 
-![down](https://image.ibb.co/h2Xga7/Screen_Shot_2018_03_09_at_2_08_23_PM.png)
+```
+Input (28×28) → RNN (2 layers, 100 hidden) → FC (100→10) → Softmax → Prediction
+```
+
+## 🛠️ Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| 🐍 Python 3 | Language |
+| 🔥 PyTorch | Deep learning framework |
+| 🖼️ torchvision | MNIST dataset & transforms |
+
+## 📦 Dependencies
+
+```bash
+pip install torch torchvision
+```
+
+## 🚀 How to Run
+
+```bash
+# Clone the repository
+git clone https://github.com/stabgan/Recurrent-Neural-Network-using-pyTorch.git
+cd Recurrent-Neural-Network-using-pyTorch
+
+# Install dependencies
+pip install torch torchvision
+
+# Train & evaluate
+python rnn.py
+```
+
+MNIST data is downloaded automatically on first run into `./data/`.
+
+The script trains for ~5 epochs (3000 iterations) and prints test accuracy every 500 iterations. GPU is used automatically when available.
+
+## 📊 Results
+
+![results](https://image.ibb.co/h2Xga7/Screen_Shot_2018_03_09_at_2_08_23_PM.png)
+
+## ⚠️ Known Issues
+
+- The vanilla RNN suffers from vanishing gradients on longer sequences — consider switching to LSTM or GRU for better performance.
+- The model is defined and trained at module level (no `if __name__ == "__main__"` guard), so importing `rnn.py` will trigger training.
+- No checkpointing — training restarts from scratch every run.
+- The results screenshot above is from an earlier version and may not match current output exactly.
+
+## 📄 License
+
+[MIT](LICENSE)
