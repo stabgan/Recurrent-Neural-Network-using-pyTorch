@@ -1,15 +1,52 @@
-# Recurrent Neural Network using pyTorch
-I implemented the Recurrent Neural Network into the MNIST dataset using pyTorch in this project
+# Recurrent Neural Network — MNIST Digit Classification
 
-The human brain is a recurrent neural network (RNN): a network of neurons with feedback connections. It can learn many behaviors / sequence processing tasks / algorithms / programs that are not learnable by traditional machine learning methods. This explains the rapidly growing interest in artificial RNNs for technical applications: general computers which can learn algorithms to map input sequences to output sequences, with or without a teacher. They are computationally more powerful and biologically more plausible than other adaptive approaches such as Hidden Markov Models (no continuous internal states), feedforward networks and Support Vector Machines (no internal states at all). Our recent applications include adaptive robotics and control, handwriting recognition, speech recognition, keyword spotting, music composition, attentive vision, protein analysis, stock market prediction, and many other sequence problems.
-Early RNNs of the 1990s could not learn to look far back into the past. Their problems were first rigorously analyzed on Schmidhuber's RNN long time lag project by his former PhD student Hochreiter (1991). A feedback network called "Long Short-Term Memory" (LSTM, Neural Comp., 1997) overcomes the fundamental problems of traditional RNNs, and efficiently learns to solve many previously unlearnable tasks involving:
+A vanilla RNN trained on the MNIST handwritten-digit dataset using PyTorch.  
+Each 28×28 image is treated as a sequence of 28 time-steps (rows), each with 28 features (pixels).
 
-1. Recognition of temporally extended patterns in noisy input sequences 
-2. Recognition of the temporal order of widely separated events in noisy input streams 
-3. Extraction of information conveyed by the temporal distance between events 
-4. Stable generation of precisely timed rhythms, smooth and non-smooth periodic trajectories 
-5. Robust storage of high-precision real numbers across extended time intervals.
+## How It Works
 
-Results:
+| Component | Detail |
+|-----------|--------|
+| Architecture | 2-layer stacked RNN → fully-connected output |
+| Input | 28 time-steps × 28 features (one row per step) |
+| Hidden size | 100 |
+| Optimizer | SGD (lr = 0.1) |
+| Loss | Cross-Entropy |
+| Dataset | MNIST (auto-downloaded via `torchvision`) |
 
-![down](https://image.ibb.co/h2Xga7/Screen_Shot_2018_03_09_at_2_08_23_PM.png)
+The model reads each image row-by-row, builds a hidden representation across 28 steps, and classifies the final hidden state into one of 10 digit classes.
+
+## 🛠 Tech Stack
+
+| | Tool | Purpose |
+|---|------|---------|
+| 🐍 | Python 3.8+ | Language |
+| 🔥 | PyTorch | Deep learning framework |
+| 🖼 | torchvision | MNIST dataset & transforms |
+
+## Getting Started
+
+```bash
+# Install dependencies
+pip install torch torchvision
+
+# Train the model
+python rnn.py
+```
+
+MNIST is downloaded automatically on first run into a `./data` directory.
+
+## Results
+
+The model reaches ~96 % test accuracy after 3 000 iterations with a 2-layer RNN.
+
+![results](https://image.ibb.co/h2Xga7/Screen_Shot_2018_03_09_at_2_08_23_PM.png)
+
+## ⚠️ Known Issues
+
+- A vanilla RNN struggles with longer sequences; consider LSTM/GRU for harder tasks.
+- No learning-rate scheduler or early stopping is used.
+
+## License
+
+MIT
