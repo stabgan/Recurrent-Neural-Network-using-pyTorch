@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 import torchvision.datasets as dsets
+from torch.autograd import Variable
 
 '''
 STEP 1: LOADING DATASET
@@ -59,9 +60,9 @@ class RNNModel(nn.Module):
         #  USE GPU FOR MODEL  #
         #######################
         if torch.cuda.is_available():
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda()
+            h0 = Variable(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda())
         else:
-            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim)
+            h0 = Variable(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim))
             
         # One time step
         out, hn = self.rnn(x, h0)
@@ -112,15 +113,16 @@ seq_dim = 28
 iter = 0
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
-        # Load images as tensors
+        # Load images as Variable
         #######################
         #  USE GPU FOR MODEL  #
         #######################
         if torch.cuda.is_available():
-            images = images.view(-1, seq_dim, input_dim).cuda()
-            labels = labels.cuda()
+            images = Variable(images.view(-1, seq_dim, input_dim).cuda())
+            labels = Variable(labels.cuda())
         else:
-            images = images.view(-1, seq_dim, input_dim)
+            images = Variable(images.view(-1, seq_dim, input_dim))
+            labels = Variable(labels)
             
         # Clear gradients w.r.t. parameters
         optimizer.zero_grad()
@@ -144,44 +146,35 @@ for epoch in range(num_epochs):
             # Calculate Accuracy         
             correct = 0
             total = 0
-
-            # Switch to evaluation mode
-            model.eval()
-
-            # Disable gradient computation for inference
-            with torch.no_grad():
-                # Iterate through test dataset
-                for images, labels in test_loader:
-                    #######################
-                    #  USE GPU FOR MODEL  #
-                    #######################
-                    if torch.cuda.is_available():
-                        images = images.view(-1, seq_dim, input_dim).cuda()
-                    else:
-                        images = images.view(-1, seq_dim, input_dim)
-                    
-                    # Forward pass only to get logits/output
-                    outputs = model(images)
-                    
-                    # Get predictions from the maximum value
-                    _, predicted = torch.max(outputs.data, 1)
-                    
-                    # Total number of labels
-                    total += labels.size(0)
-                    
-                    # Total correct predictions
-                    #######################
-                    #  USE GPU FOR MODEL  #
-                    #######################
-                    if torch.cuda.is_available():
-                        correct += (predicted.cpu() == labels.cpu()).sum()
-                    else:
-                        correct += (predicted == labels).sum()
+            # Iterate through test dataset
+            for images, labels in test_loader:
+                #######################
+                #  USE GPU FOR MODEL  #
+                #######################
+                if torch.cuda.is_available():
+                    images = Variable(images.view(-1, seq_dim, input_dim).cuda())
+                else:
+                    images = Variable(images.view(-1, seq_dim, input_dim))
+                
+                # Forward pass only to get logits/output
+                outputs = model(images)
+                
+                # Get predictions from the maximum value
+                _, predicted = torch.max(outputs.data, 1)
+                
+                # Total number of labels
+                total += labels.size(0)
+                
+                # Total correct predictions
+                #######################
+                #  USE GPU FOR MODEL  #
+                #######################
+                if torch.cuda.is_available():
+                    correct += (predicted.cpu() == labels.cpu()).sum()
+                else:
+                    correct += (predicted == labels).sum()
             
-            # Switch back to training mode
-            model.train()
-
             accuracy = 100 * correct / total
             
             # Print Loss
-            print('Iteration: {}. Loss: {}. Accuracy: {}'.format(iter, loss.item(), accuracy))
+            print('Iteration: {}. Loss: {}. Accuracy: {}'.format(iter, loss.data[0], accuracy))
